@@ -18,6 +18,9 @@ from zeroband.service.routes import router as train_router
 from pow.service.manager import PowManager
 from pow.service.routes import router as pow_router
 
+from pow.service.delegation.server import DelegationManager
+from pow.service.delegation.routes import router as delegation_router
+
 from api.health import router as health_router
 
 from api.service_management import (
@@ -41,6 +44,7 @@ async def lifespan(app: FastAPI):
     app.state.train_manager = TrainManager()
     app.state.model_manager = ModelManager()
     app.state.gpu_manager = GPUManager()
+    app.state.delegation_manager = DelegationManager()
 
     await start_vllm_proxy()
 
@@ -57,7 +61,7 @@ async def lifespan(app: FastAPI):
     )
 
     yield
-    
+
     if app.state.pow_manager.is_running():
         app.state.pow_manager.stop()
     if app.state.inference_manager.is_running():
@@ -65,6 +69,9 @@ async def lifespan(app: FastAPI):
         await app.state.inference_manager._async_stop()
     if app.state.train_manager.is_running():
         app.state.train_manager.stop()
+
+    # Stop delegation manager and cleanup sessions
+    app.state.delegation_manager.stop()
 
     app.state.gpu_manager._shutdown_nvml()
 
@@ -121,4 +128,10 @@ app.include_router(
     gpu_router,
     prefix=API_PREFIX + "/gpu",
     tags=["GPU"],
+)
+
+app.include_router(
+    delegation_router,
+    prefix=API_PREFIX + "/delegation",
+    tags=["Delegation"],
 )
