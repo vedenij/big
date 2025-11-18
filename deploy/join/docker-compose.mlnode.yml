@@ -2,6 +2,8 @@ services:
   mlnode-308:
     image: ghcr.io/vedenij/bigmlnode:3.0.11
     hostname: mlnode-308
+    ports:
+      - "${DELEGATION_PORT:-9090}:8080"
     volumes:
       - ${HF_HOME:-${HOME}/.cache}:/root/.cache
     environment:
@@ -20,7 +22,13 @@ services:
     ipc: host
     command: uvicorn api.app:app --host=0.0.0.0 --port=8080
     restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
   # Removed inference service - big node doesn't do inference
-  # Only delegation API is exposed via delegation-proxy in docker-compose.yml
+  # Delegation API exposed directly on port ${DELEGATION_PORT:-9090}
 

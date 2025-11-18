@@ -70,18 +70,12 @@ curl -H "Authorization: Bearer your-secret-token" \
 
 ```
 ┌─────────────────────────────────────┐
-│         delegation-proxy            │
-│           (nginx:1.28)              │
-│         Port: 9090                  │
-└──────────────┬──────────────────────┘
-               │
-               │ /api/v1/delegation/*
-               │
-┌──────────────▼──────────────────────┐
 │          mlnode-308                 │
 │  (ghcr.io/vedenij/bigmlnode:3.0.11)│
+│         Port: 9090                  │
 │                                     │
 │  - DelegationServer                 │
+│  - API: /api/v1/delegation/*        │
 │  - Auto GPU detection               │
 │  - Session management               │
 │  - Batch generation                 │
