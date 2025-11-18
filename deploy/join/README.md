@@ -41,6 +41,25 @@ Set the following variables:
 
 ### 3. Deploy
 
+#### Option A: Local Development (recommended)
+
+Build image from local files without pushing to GitHub:
+
+```bash
+cd deploy/join
+./deploy-local.sh
+```
+
+After making code changes, quickly rebuild:
+
+```bash
+./rebuild.sh
+```
+
+#### Option B: Production Deployment
+
+Use pre-built image from GitHub registry:
+
 ```bash
 # Load configuration
 source config.env
