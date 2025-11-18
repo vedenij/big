@@ -29,7 +29,6 @@ echo ""
 
 # Build and start services
 docker compose \
-    -f docker-compose.yml \
     -f docker-compose.mlnode.yml \
     -f docker-compose.mlnode.local.yml \
     build --no-cache
@@ -39,7 +38,6 @@ echo "Starting services..."
 echo ""
 
 docker compose \
-    -f docker-compose.yml \
     -f docker-compose.mlnode.yml \
     -f docker-compose.mlnode.local.yml \
     up -d
@@ -50,7 +48,7 @@ echo "✓ Deployment complete!"
 echo "============================================"
 echo ""
 echo "Services running:"
-docker compose -f docker-compose.yml -f docker-compose.mlnode.yml -f docker-compose.mlnode.local.yml ps
+docker compose -f docker-compose.mlnode.yml -f docker-compose.mlnode.local.yml ps
 echo ""
 echo "View logs:"
 echo "  docker logs -f mlnode-308"

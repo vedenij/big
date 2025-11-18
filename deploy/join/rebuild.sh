@@ -18,7 +18,6 @@ fi
 
 echo "Stopping services..."
 docker compose \
-    -f docker-compose.yml \
     -f docker-compose.mlnode.yml \
     -f docker-compose.mlnode.local.yml \
     down
@@ -26,7 +25,6 @@ docker compose \
 echo ""
 echo "Rebuilding image..."
 docker compose \
-    -f docker-compose.yml \
     -f docker-compose.mlnode.yml \
     -f docker-compose.mlnode.local.yml \
     build
@@ -34,7 +32,6 @@ docker compose \
 echo ""
 echo "Starting services..."
 docker compose \
-    -f docker-compose.yml \
     -f docker-compose.mlnode.yml \
     -f docker-compose.mlnode.local.yml \
     up -d

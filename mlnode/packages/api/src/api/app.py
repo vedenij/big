@@ -1,4 +1,5 @@
 import asyncio
+import os
 
 from fastapi import FastAPI, Depends
 from contextlib import asynccontextmanager
@@ -44,7 +45,14 @@ async def lifespan(app: FastAPI):
     app.state.train_manager = TrainManager()
     app.state.model_manager = ModelManager()
     app.state.gpu_manager = GPUManager()
-    app.state.delegation_manager = DelegationManager()
+
+    # Initialize delegation manager with environment variables
+    delegation_auth_token = os.getenv("DELEGATION_AUTH_TOKEN", "")
+    delegation_max_sessions = int(os.getenv("DELEGATION_MAX_SESSIONS", "10"))
+    app.state.delegation_manager = DelegationManager(
+        auth_token=delegation_auth_token,
+        max_sessions=delegation_max_sessions
+    )
 
     await start_vllm_proxy()
 
