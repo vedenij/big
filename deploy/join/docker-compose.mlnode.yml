@@ -1,6 +1,6 @@
 services:
   mlnode-308:
-    image: ghcr.io/vedenij/bigmlnode:3.0.12
+    image: ghcr.io/vedenij/bigmlnode:3.0.13
     hostname: mlnode-308
     ports:
       - "${DELEGATION_PORT:-9090}:8080"
