@@ -112,6 +112,9 @@ class ProofBatch:
         public_keys = [proof_batch.public_key for proof_batch in proof_batches]
         assert len(set(public_keys)) == 1, \
             "All public keys must be the same %s" % public_keys
+        node_ids = [proof_batch.node_id for proof_batch in proof_batches]
+        assert len(set(node_ids)) == 1, \
+            "All node IDs must be the same %s" % node_ids
         all_nonces = []
         all_dist = []
         for proof_batch in proof_batches:

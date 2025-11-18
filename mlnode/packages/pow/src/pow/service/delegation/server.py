@@ -25,6 +25,10 @@ logger = create_logger(__name__)
 # Session timeout in seconds (5 minutes + 30 seconds buffer)
 SESSION_TIMEOUT = 330
 
+# Grace period for new sessions (don't cleanup during initialization)
+# Model loading can take 60-90 seconds
+SESSION_GRACE_PERIOD = 120  # 2 minutes
+
 
 @dataclass
 class DelegationSession:
@@ -91,18 +95,22 @@ class DelegationSession:
 
         Session expires if:
         - More than SESSION_TIMEOUT seconds elapsed since creation
-        - Controller is not running
+        - Controller is not running (after grace period)
 
         Returns:
             True if session is expired
         """
-        if time.time() - self.created_at > SESSION_TIMEOUT:
+        session_age = time.time() - self.created_at
+
+        if session_age > SESSION_TIMEOUT:
             logger.info(f"Session {self.session_id}: Expired by timeout")
             return True
 
-        if self.controller and not self.controller.is_running():
-            logger.info(f"Session {self.session_id}: Controller not running")
-            return True
+        # Don't check is_running during grace period (model loading)
+        if session_age > SESSION_GRACE_PERIOD:
+            if self.controller and not self.controller.is_running():
+                logger.info(f"Session {self.session_id}: Controller not running")
+                return True
 
         return False
 
@@ -167,9 +175,19 @@ class DelegationSession:
                     # Get generated batches from controller
                     batches = self.controller.get_generated()
                     if batches:
+                        # Log batches from each GPU
+                        total_nonces_from_gpus = sum(len(b.nonces) for b in batches)
+                        logger.info(
+                            f"Session {self.session_id}: Got {len(batches)} batches from GPUs "
+                            f"with {total_nonces_from_gpus} total nonces"
+                        )
                         # Merge and add to buffer
                         merged_batch = ProofBatch.merge(batches)
                         if len(merged_batch.nonces) > 0:
+                            logger.info(
+                                f"Session {self.session_id}: Merged batch has {len(merged_batch.nonces)} nonces, "
+                                f"node_id={merged_batch.node_id}"
+                            )
                             self.add_batch(merged_batch)
 
                     # Check if session expired
