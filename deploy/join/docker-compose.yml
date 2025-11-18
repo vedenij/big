@@ -1,7 +1,7 @@
 # Big Node - Delegation Server Only
 # This node provides GPU computation services for small nodes
 # It does NOT participate in blockchain consensus
+# All services are defined in docker-compose.mlnode.yml
 
-services:
-  # No blockchain services needed (tmkms, node, api, explorer, proxy, proxy-ssl)
-  # MLNode exposes delegation API directly on port 9090
+version: '3.8'
+services: {}
