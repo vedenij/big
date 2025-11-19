@@ -123,7 +123,7 @@ class Controller:
 
     def stop(self):
         if not self.process.is_alive():
-            logger.warning("Controller stop called but process is not running.")
+            logger.debug("Controller stop called but process is not running (already stopped).")
             return
 
         self.phase.value = Phase.STOP

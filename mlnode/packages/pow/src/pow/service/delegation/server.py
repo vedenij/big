@@ -308,27 +308,28 @@ class DelegationManager:
                     f"Active sessions: {len(active_sessions)}"
                 )
 
-            # Create session
-            session_id = str(uuid.uuid4())
-            session = DelegationSession(
-                session_id=session_id,
-                small_node_params=request,
-            )
+        # Create session (outside lock)
+        session_id = str(uuid.uuid4())
+        session = DelegationSession(
+            session_id=session_id,
+            small_node_params=request,
+        )
 
+        # Start generation BEFORE adding to sessions dict
+        # This ensures session is only visible after successful initialization
+        try:
+            session.start_generation()
+        except Exception as e:
+            logger.error(f"Failed to start generation for session {session_id}: {e}")
+            raise ValueError(f"Failed to start session: {e}")
+
+        # Add to sessions dict ONLY after successful start
+        with self.lock:
             self.sessions[session_id] = session
             logger.info(
                 f"Created session {session_id} for node_id={request.node_id}, "
                 f"active sessions: {len(active_sessions) + 1}"
             )
-
-        # Start generation (outside lock to avoid blocking)
-        try:
-            session.start_generation()
-        except Exception as e:
-            # Remove session if start failed
-            with self.lock:
-                self.sessions.pop(session_id, None)
-            raise
 
         return session
 
